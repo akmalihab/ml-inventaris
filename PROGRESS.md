@@ -12,8 +12,9 @@
 | Training | Notebook 01–04, model final | ✅ Selesai |
 | Fase 1 | FastAPI + Supabase | ✅ Selesai |
 | Fase 2 | Web Vue 3 | ✅ Selesai |
-| Fase 3 | Android Flutter | 🔲 Belum dimulai |
-| Fase 4 | Demo end-to-end | 🔲 Belum dimulai |
+| Fase 3 | Android Flutter | ✅ Selesai |
+| Fase 4 | Demo end-to-end | ✅ Selesai |
+| Fase 5 | Visualisasi Chart, SPK Bisnis & Rebranding START | ✅ Selesai |
 
 ---
 
@@ -250,6 +251,50 @@ Alur demo & verifikasi:
 
 Output: `docs/demo-checklist.md` berisi 5 tahap pengujian lengkap dengan angka acuan validasi.
 Verifikasi Benchmark: `api/test_api.py` lolos 100%.
+
+---
+
+## Fase 5 — Visualisasi Chart, SPK Bisnis & Rebranding START (✅ Selesai)
+
+### 1. Seleksi Alokasi Ruangan Batch CSV (API & Web)
+- Parameter query `target_room_id` pada endpoint `/predict/batch` FastAPI.
+- Selektor alokasi di web `UploadCSVView.vue`: mode "Sesuai kolom ruangan di CSV" vs "Kunci ke 1 ruangan target".
+- Sanitasi field `kondisi` opsional (tidak wajib ada di CSV, otomatis `NULL`).
+
+### 2. Standardisasi Tiga Partisi Warna Risiko & Beban
+- Diterapkan konsisten di Web dan Android:
+  - **Hijau:** 0% – 33.3% (Risiko Rendah / Kondisi Baik)
+  - **Kuning:** 33.4% – 66.7% (Risiko Sedang / Perhatian)
+  - **Merah:** 66.8% – 100% (Risiko Tinggi / Prioritas Kritis)
+
+### 3. Dukungan Tema Global (Dark Mode & Light Mode) Menyeluruh
+- Layanan reaktif `ThemeService` singleton di Flutter mobile dengan `ValueNotifier<ThemeMode>`.
+- Penyesuaian warna adaptif untuk seluruh background body, search field, dropdown, dialog hapus, dan kartu di `RoomsScreen`, `MaintenanceScreen`, `ItemDetailScreen`, dan `DashboardScreen`.
+
+### 4. Visualisasi Bar Chart Kondisi Inventaris (Web & Mobile)
+- **Web (`DashboardView.vue`):**
+  - Switcher komparasi: "Per Ruangan (12 Ruang)" vs "Per Kategori (Elektronik, Furnitur, Pelengkap)".
+  - Bar vertikal stacked interaktif (Hijau vs Kuning/Merah) dengan hover tooltip rincian jumlah aset.
+  - Limit query store `useInventarisStore` dinaikkan ke 1000 agar mencakup seluruh data (600 unit).
+- **Mobile (`DashboardScreen.dart`):**
+  - Tab baru "Dashboard" sebagai entry point utama navigasi bawah (`main.dart`).
+  - Horizontal progress bar bersegmen proporsional yang rapi dan mudah dibaca di layar sentuh.
+
+### 5. Kolom Pengingat Keputusan Bisnis (SPK Manajerial)
+- Rekomendasi tindakan strategis berbasis data aktual:
+  - **Alokasi Anggaran Suku Cadang Kritis:** Mengestimasi total nilai rupiah aset prioritas tinggi yang memerlukan tindakan segera.
+  - **Fokus Kategori Rawan:** Deteksi kategori dengan kerusakan terkonsentrasi (Elektronik rasio 100% perlu servis).
+  - **Audit Ruangan Beban Tinggi:** Hotspot ruangan dengan rasio pemeliharaan $\ge$ 50%.
+  - **SLA Teknisi:** Monitoring antrean tugas perbaikan yang belum dikerjakan.
+- Dilengkapi tombol aksi navigasi instan ke tab terkait.
+
+### 6. Rebranding Resmi Aplikasi — START
+- Nama resmi: **START** (*Sistem Terpadu Alat Rumah Tangga*).
+- Brand header web: **START AI** (*Sistem Terpadu ART*).
+- Ikon aplikasi kustom: Gradien squircle *emerald-to-teal* (`#059669` ke `#14b8a6`) dengan logo plus medis/inventaris putih bersih.
+- Menghasilkan seluruh densitas Android (`mdpi` hingga `xxxhdpi`) + *Adaptive Icon* Android 8+ (`mipmap-anydpi-v26`).
+- File `web/public/favicon.svg` diseragamkan dengan desain ikon yang sama.
+- Berhasil diinstal via ADB ke perangkat fisik dan file APK mandiri diekspor ke `START.apk`.
 
 ---
 
