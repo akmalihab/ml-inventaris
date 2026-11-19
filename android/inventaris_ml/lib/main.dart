@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config.dart';
 import 'screens/form_screen.dart';
 import 'screens/rooms_screen.dart';
+import 'screens/maintenance_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<Widget> _screens = const [
     FormScreen(),
     RoomsScreen(),
+    MaintenanceScreen(),
   ];
 
   @override
@@ -68,12 +70,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           NavigationDestination(
             icon: Icon(Icons.add_circle_outline),
             selectedIcon: Icon(Icons.add_circle, color: Color(0xFF10B981)),
-            label: 'Input & Prediksi',
+            label: 'Input Prediksi',
           ),
           NavigationDestination(
             icon: Icon(Icons.meeting_room_outlined),
             selectedIcon: Icon(Icons.meeting_room, color: Color(0xFF10B981)),
-            label: 'Pantau Ruangan',
+            label: 'Data Ruangan',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.assignment_outlined),
+            selectedIcon: Icon(Icons.assignment, color: Color(0xFF10B981)),
+            label: 'Antrean Tugas',
           ),
         ],
       ),

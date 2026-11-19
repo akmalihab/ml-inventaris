@@ -80,6 +80,38 @@ class SupabaseService {
     });
   }
 
+  Future<Map<String, dynamic>> getItemDetail(String inventoryId) async {
+    final data = await client
+        .from('inventories')
+        .select('''
+          id, room_id, nama_barang, bahan, kategori, tahun_pembelian, jumlah, harga, kondisi_asli,
+          rooms (id, nama),
+          predictions (
+            id, prob_perlu_pemeliharaan, label_biner, threshold, prioritas, shap_top3, model_version, koreksi_petugas
+          )
+        ''')
+        .eq('id', inventoryId)
+        .single();
+    return Map<String, dynamic>.from(data);
+  }
+
+  Future<List<Map<String, dynamic>>> getMaintenanceTasks() async {
+    final data = await client
+        .from('maintenance_tasks')
+        .select('''
+          id, status, created_at,
+          predictions (
+            id, prob_perlu_pemeliharaan, label_biner, prioritas,
+            inventories (
+              id, nama_barang, kategori, bahan, tahun_pembelian,
+              rooms (id, nama)
+            )
+          )
+        ''')
+        .order('created_at', ascending: false);
+    return List<Map<String, dynamic>>.from(data);
+  }
+
   Future<List<Map<String, dynamic>>> getRoomItems(int roomId) async {
     final data = await client
         .from('inventories')
@@ -93,5 +125,19 @@ class SupabaseService {
         .order('created_at', ascending: false);
 
     return List<Map<String, dynamic>>.from(data);
+  }
+
+  Future<void> updateTaskStatus(String taskId, String status, {String? predictionId}) async {
+    await client
+        .from('maintenance_tasks')
+        .update({'status': status})
+        .eq('id', taskId);
+
+    if (status == 'Selesai' && predictionId != null) {
+      await client
+          .from('predictions')
+          .update({'koreksi_petugas': 0})
+          .eq('id', predictionId);
+    }
   }
 }

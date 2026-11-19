@@ -41,4 +41,14 @@ class ApiService {
       throw Exception('Gagal inferensi AI (${response.statusCode}): ${response.body}');
     }
   }
+
+  Future<Map<String, dynamic>> explainById(String inventoryId) async {
+    final url = Uri.parse('${AppConfig.apiBaseUrl}/inventaris/$inventoryId/explain');
+    final response = await http.get(url).timeout(const Duration(seconds: 15));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception('Gagal memuat analisis SHAP (${response.statusCode})');
+    }
+  }
 }

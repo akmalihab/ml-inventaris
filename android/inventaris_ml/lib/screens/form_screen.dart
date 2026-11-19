@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/room.dart';
 import '../services/api_service.dart';
 import '../services/supabase_service.dart';
-import 'result_screen.dart';
+import 'item_detail_screen.dart';
 
 class FormScreen extends StatefulWidget {
   const FormScreen({super.key});
@@ -141,20 +141,11 @@ class _FormScreenState extends State<FormScreen> {
 
       if (mounted) {
         setState(() => _isSubmitting = false);
-        // 3. Navigasi ke layar hasil prediksi
+        // 3. Navigasi langsung ke layar Detail Barang & Analisis SHAP
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => ResultScreen(
-              namaBarang: nama,
-              roomId: _selectedRoomId!,
-              roomNama: _rooms.firstWhere((r) => r.id == _selectedRoomId).nama,
-              tahunPembelian: tahun,
-              bahan: _selectedBahan,
-              kategori: _selectedKategori,
-              harga: harga,
-              prediction: predResult,
+            builder: (_) => ItemDetailScreen(
               inventoryId: ids['inventory_id']!,
-              predictionId: ids['prediction_id']!,
             ),
           ),
         );
@@ -183,14 +174,37 @@ class _FormScreenState extends State<FormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Input Aset Non-Medis', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Input Aset Non-Medis', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              'Klasifikasi XGBoost & Rekomendasi AI',
+              style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.7)),
+            ),
+          ],
+        ),
         backgroundColor: const Color(0xFF0F172A),
         foregroundColor: Colors.white,
         actions: [
-          TextButton.icon(
-            onPressed: _applyBenchmarkPreset,
-            icon: const Icon(Icons.flash_on, size: 16, color: Colors.amber),
-            label: const Text('Preset AC', style: TextStyle(color: Colors.amber, fontSize: 12)),
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton.icon(
+              onPressed: _applyBenchmarkPreset,
+              icon: const Icon(Icons.flash_on, size: 15, color: Color(0xFFF59E0B)),
+              label: const Text(
+                'Preset AC',
+                style: TextStyle(color: Color(0xFFF59E0B), fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFFF59E0B).withOpacity(0.15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFF59E0B), width: 0.8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              ),
+            ),
           ),
         ],
       ),
