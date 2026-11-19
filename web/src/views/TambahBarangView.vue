@@ -4,15 +4,19 @@ import { RouterLink } from 'vue-router'
 import { api } from '../lib/api'
 import type { PredictResponse } from '../lib/api'
 
+const currentYear = new Date().getFullYear()
+const currentMonth = new Date().getMonth() + 1
+const currentQuarter = Math.ceil(currentMonth / 3)
+
 const BAHAN    = ['Besi', 'Kaca', 'Kain', 'Kayu', 'Plastik']
 const KATEGORI = ['Elektronik', 'Furnitur', 'Pelengkap']
 const RUANGAN  = ['Adenium','Anturium','Aster','Dahlia','Gardena','Lavender','Mawar','Melati A','Melati B','Sakura','Seruni','Tulip']
-const TAHUN_MIN = 2011
-const TAHUN_MAX = 2025
+const TAHUN_MIN = 1990
+const TAHUN_MAX = currentYear
 
 const form = reactive({
-  nama_barang: '', nama_ruangan: '', bahan: '', kategori: '',
-  tahun_pembelian: 2020, jumlah: 1, harga: 0,
+  nama_barang: '', nama_ruangan: 'Adenium', bahan: 'Besi', kategori: 'Elektronik',
+  tahun_pembelian: currentYear, jumlah: 1, harga: 0,
 })
 
 const errors   = reactive<Record<string, string>>({})

@@ -11,7 +11,7 @@ class PredictRequest(BaseModel):
     nama_ruangan: str
     bahan: str
     kategori: str
-    tahun_pembelian: int = Field(..., ge=2011, le=2025)
+    tahun_pembelian: int = Field(..., ge=1990, le=2030)
     jumlah: int = Field(..., gt=0)
     harga: float = Field(..., gt=0)
 

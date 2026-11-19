@@ -58,7 +58,15 @@ class _FormScreenState extends State<FormScreen> {
   @override
   void initState() {
     super.initState();
+    _applyCurrentPeriod();
     _loadRooms();
+  }
+
+  void _applyCurrentPeriod() {
+    final now = DateTime.now();
+    final currentQuarter = ((now.month - 1) ~/ 3) + 1;
+    _tahunController.text = now.year.toString();
+    _selectedTriwulan = 'TW $currentQuarter';
   }
 
   Future<void> _loadRooms() async {
@@ -68,7 +76,7 @@ class _FormScreenState extends State<FormScreen> {
         setState(() {
           _rooms = rooms;
           if (_rooms.isNotEmpty) {
-            _selectedRoomId = _rooms.first.id;
+            _selectedRoomId = _rooms.any((r) => r.id == 1) ? 1 : _rooms.first.id;
           }
           _isLoadingRooms = false;
         });
@@ -217,6 +225,58 @@ class _FormScreenState extends State<FormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Banner Status Periode Timezone Otomatis
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF047857)),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Periode Aktif: Tahun ${DateTime.now().year} • $_selectedTriwulan',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF047857)),
+                                ),
+                                Text(
+                                  'Otomatis disinkronkan dengan zona waktu sistem (${DateTime.now().timeZoneName})',
+                                  style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              setState(() => _applyCurrentPeriod());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Tahun & Triwulan disetel ke waktu sistem saat ini.'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFF10B981).withOpacity(0.4)),
+                              ),
+                              child: const Text('Reset Waktu', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF047857))),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
                     // Kartu Ruangan & Info Dasar
                     Card(
                       elevation: 1,

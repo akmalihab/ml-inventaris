@@ -107,6 +107,51 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     }
   }
 
+  Future<void> _handleDeleteAsset() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Aset Ini?'),
+        content: Text(
+          'Aset "${_inventory?['nama_barang'] ?? ''}" beserta data prediksi dan riwayat tugas pemeliharaan akan dihapus permanen.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE11D48)),
+            child: const Text('Hapus Permanen', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await _supabaseService.deleteInventoryItem(widget.inventoryId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Aset berhasil dihapus.'),
+              backgroundColor: Color(0xFF047857),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menghapus aset: $e'), backgroundColor: const Color(0xFFE11D48)),
+          );
+        }
+      }
+    }
+  }
+
   String _formatCurrency(num value) {
     final s = value.toStringAsFixed(0);
     final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
@@ -125,6 +170,11 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         backgroundColor: const Color(0xFF0F172A),
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Color(0xFFFDA4AF)),
+            onPressed: (_isLoading || _inventory == null) ? null : _handleDeleteAsset,
+            tooltip: 'Hapus Aset Ini',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _isLoading ? null : _loadAllData,

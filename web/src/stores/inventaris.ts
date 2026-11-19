@@ -159,6 +159,22 @@ export const useInventarisStore = defineStore('inventaris', () => {
     if (p) p.koreksi_petugas = koreksi
   }
 
+  async function clearRoomInventories(roomId: number) {
+    const { error: err } = await supabase.from('inventories').delete().eq('room_id', roomId)
+    if (err) throw new Error(err.message)
+    await Promise.all([
+      fetchRoomInventories(roomId),
+      fetchRoomSummaries(),
+    ])
+  }
+
+  async function deleteInventory(id: string, roomId?: number) {
+    const { error: err } = await supabase.from('inventories').delete().eq('id', id)
+    if (err) throw new Error(err.message)
+    if (roomId) await fetchRoomInventories(roomId)
+    await fetchRoomSummaries()
+  }
+
   function subscribeRealtime() {
     channel = supabase
       .channel('inventaris-changes')
@@ -190,6 +206,8 @@ export const useInventarisStore = defineStore('inventaris', () => {
     updateTaskStatus,
     addTask,
     correctLabel,
+    clearRoomInventories,
+    deleteInventory,
     subscribeRealtime,
     unsubscribe,
   }

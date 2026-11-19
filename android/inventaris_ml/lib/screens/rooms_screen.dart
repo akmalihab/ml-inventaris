@@ -35,7 +35,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
         setState(() {
           _rooms = rooms;
           if (_rooms.isNotEmpty) {
-            _selectedRoomId = _rooms.first.id;
+            _selectedRoomId = _rooms.any((r) => r.id == 1) ? 1 : _rooms.first.id;
           }
           _isLoadingRooms = false;
         });
@@ -71,6 +71,108 @@ class _RoomsScreenState extends State<RoomsScreen> {
     final s = value.toStringAsFixed(0);
     final reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     return 'Rp' + s.replaceAllMapped(reg, (Match m) => '${m[1]}.');
+  }
+
+  Future<void> _confirmClearRoom(Room room) async {
+    final count = _items.length;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Color(0xFFE11D48)),
+            const SizedBox(width: 8),
+            Text('Kosongkan Ruang ${room.nama}?'),
+          ],
+        ),
+        content: Text(
+          'Tindakan ini akan menghapus $count aset inventaris beserta seluruh data prediksi & riwayat tugas pemeliharaan di Ruang ${room.nama}.\n\nData lama akan dibersihkan agar ruangan siap untuk pengujian/testing data baru.',
+          style: const TextStyle(fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE11D48)),
+            child: const Text('Ya, Hapus Semua Aset', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoadingItems = true);
+      try {
+        await _supabaseService.clearRoomInventories(room.id);
+        await _loadItems(room.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Semua aset di Ruang ${room.nama} berhasil dihapus.'),
+              backgroundColor: const Color(0xFF047857),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() => _isLoadingItems = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menghapus data: $e'),
+              backgroundColor: const Color(0xFFE11D48),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _deleteSingleItem(String id, String nama) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Aset?'),
+        content: Text('Hapus aset "$nama" beserta hasil prediksinya?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE11D48)),
+            child: const Text('Hapus', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await _supabaseService.deleteInventoryItem(id);
+        if (_selectedRoomId != null) _loadItems(_selectedRoomId!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Aset "$nama" berhasil dihapus.'),
+              backgroundColor: const Color(0xFF047857),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal: $e'), backgroundColor: const Color(0xFFE11D48)),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -221,6 +323,51 @@ class _RoomsScreenState extends State<RoomsScreen> {
                             },
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Baris Aksi Ruangan (Info + Tombol Kosongkan Ruangan)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Ruang ${selectedRoom.nama} • $totalAset aset tersimpan',
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                          ),
+                          InkWell(
+                            onTap: totalAset > 0 ? () => _confirmClearRoom(selectedRoom) : null,
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: totalAset > 0 ? const Color(0xFFFFF1F2) : const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: totalAset > 0 ? const Color(0xFFFDA4AF) : const Color(0xFFE2E8F0),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.delete_sweep_outlined,
+                                    size: 14,
+                                    color: totalAset > 0 ? const Color(0xFFE11D48) : const Color(0xFF94A3B8),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Hapus Data Ruangan',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: totalAset > 0 ? const Color(0xFFBE123C) : const Color(0xFF94A3B8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
 
@@ -539,7 +686,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
             ),
             const SizedBox(height: 8),
 
-            // Row 2: Nama Barang & Tombol Panah
+            // Row 2: Nama Barang & Tombol Aksi
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -553,7 +700,19 @@ class _RoomsScreenState extends State<RoomsScreen> {
                     ),
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF94A3B8)),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFF94A3B8)),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  splashRadius: 18,
+                  tooltip: 'Hapus aset ini',
+                  onPressed: () => _deleteSingleItem(item['id'] as String, item['nama_barang'] as String? ?? '-'),
+                ),
+                const SizedBox(width: 8),
+                const Padding(
+                  padding: EdgeInsets.only(top: 2.0),
+                  child: Icon(Icons.arrow_forward_ios, size: 13, color: Color(0xFF94A3B8)),
+                ),
               ],
             ),
             const SizedBox(height: 6),

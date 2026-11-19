@@ -6,7 +6,7 @@ class SupabaseService {
   final SupabaseClient client = Supabase.instance.client;
 
   Future<List<Room>> getRooms() async {
-    final response = await client.from('rooms').select().order('id');
+    final response = await client.from('rooms').select().order('id', ascending: true);
     return (response as List).map((e) => Room.fromJson(e)).toList();
   }
 
@@ -139,5 +139,13 @@ class SupabaseService {
           .update({'koreksi_petugas': 0})
           .eq('id', predictionId);
     }
+  }
+
+  Future<void> clearRoomInventories(int roomId) async {
+    await client.from('inventories').delete().eq('room_id', roomId);
+  }
+
+  Future<void> deleteInventoryItem(String inventoryId) async {
+    await client.from('inventories').delete().eq('id', inventoryId);
   }
 }
