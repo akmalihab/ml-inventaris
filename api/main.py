@@ -1,6 +1,7 @@
 import os
 import io
 import csv
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -122,13 +123,32 @@ def predict_batch(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"CSV tidak valid: {e}")
 
+    # Bersihkan whitespace nama kolom
+    df.columns = df.columns.str.strip()
+
     required = {"nama_barang", "bahan", "kategori", "tahun_pembelian", "jumlah", "harga"}
     missing = required - set(df.columns)
     if missing:
         raise HTTPException(status_code=400, detail=f"Kolom tidak ada: {sorted(missing)}")
 
+    # Sanitasi kolom 'jumlah': pastikan numeric >= 1 agar lolos constraint DB dan tidak division by zero
+    df["jumlah"] = pd.to_numeric(df["jumlah"], errors="coerce").fillna(1).astype(int)
+    df["jumlah"] = df["jumlah"].apply(lambda x: 1 if x <= 0 else x)
+
+    # Sanitasi 'tahun_pembelian'
+    df["tahun_pembelian"] = pd.to_numeric(df["tahun_pembelian"], errors="coerce").fillna(datetime.now().year).astype(int)
+
+    # Sanitasi 'harga'
+    df["harga"] = pd.to_numeric(df["harga"], errors="coerce")
+
+    # Sanitasi string columns
+    for col in ["nama_barang", "bahan", "kategori"]:
+        df[col] = df[col].astype(str).str.strip()
+
     if "nama_ruangan" not in df.columns:
-        df["nama_ruangan"] = "-"
+        df["nama_ruangan"] = "Adenium"
+    else:
+        df["nama_ruangan"] = df["nama_ruangan"].astype(str).str.strip()
 
     try:
         results, df_feat = predict_batch_df(df)
@@ -140,16 +160,19 @@ def predict_batch(file: UploadFile = File(...)):
         try:
             # Ambil semua rooms sekaligus
             rooms_data = _db.table("rooms").select("id,nama").execute().data
-            room_map = {r["nama"]: r["id"] for r in rooms_data}
+            room_map = {r["nama"].strip(): r["id"] for r in rooms_data}
 
             inv_rows = []
             for i, row in df_feat.iterrows():
                 # Jika harga di CSV null, pakai harga_per_unit terimputasi * jumlah
                 harga_raw = row.get("harga")
-                if pd.notna(harga_raw):
+                jml = int(row["jumlah"]) if pd.notna(row.get("jumlah")) and int(row["jumlah"]) > 0 else 1
+
+                if pd.notna(harga_raw) and float(harga_raw) > 0:
                     harga_val = float(harga_raw)
                 else:
-                    harga_val = float(row["harga_per_unit"] * row["jumlah"])
+                    hpu = float(row.get("harga_per_unit", 100000))
+                    harga_val = float(hpu * jml)
 
                 # Validasi kategori ke check constraint
                 kat = str(row["kategori"]).strip()
@@ -160,13 +183,16 @@ def predict_batch(file: UploadFile = File(...)):
                 if kondisi_asli_val not in ("Baik", "Kurang Baik", "Rusak Berat"):
                     kondisi_asli_val = None
 
+                r_name = str(row.get("nama_ruangan", "Adenium")).strip()
+                room_id = room_map.get(r_name) or room_map.get("Adenium") or 1
+
                 inv_rows.append({
-                    "room_id": room_map.get(str(row.get("nama_ruangan", "-"))),
+                    "room_id": room_id,
                     "nama_barang": str(row["nama_barang"]),
                     "bahan": str(row["bahan"]),
                     "kategori": kat,
                     "tahun_pembelian": int(row["tahun_pembelian"]),
-                    "jumlah": int(row["jumlah"]),
+                    "jumlah": jml,
                     "harga": harga_val,
                     "triwulan": str(row["triwulan"]) if "triwulan" in row and pd.notna(row.get("triwulan")) else None,
                     "kondisi_asli": kondisi_asli_val,
