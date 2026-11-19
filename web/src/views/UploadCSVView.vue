@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { api } from '../lib/api'
+import { useInventarisStore } from '../stores/inventaris'
 import type { BatchResult } from '../lib/api'
 
-const file     = ref<File | null>(null)
-const loading  = ref(false)
-const result   = ref<BatchResult | null>(null)
-const error    = ref<string | null>(null)
+const store = useInventarisStore()
+
+const file            = ref<File | null>(null)
+const selectedTarget  = ref<string>('all') // 'all' = otomatis dari kolom CSV atau default
+const loading         = ref(false)
+const result          = ref<BatchResult | null>(null)
+const error           = ref<string | null>(null)
+
+onMounted(async () => {
+  if (store.rooms.length === 0) {
+    await store.fetchRooms()
+  }
+})
 
 // Pagination
 const currentPage = ref(1)
@@ -44,7 +54,9 @@ async function upload() {
   result.value = null
   currentPage.value = 1
   try {
-    result.value = await api.predictBatch(file.value)
+    const targetRoomId = selectedTarget.value === 'all' ? null : Number(selectedTarget.value)
+    result.value = await api.predictBatch(file.value, targetRoomId)
+    await store.fetchRoomSummaries()
   } catch (e: any) {
     error.value = e.message
   } finally {
@@ -78,6 +90,27 @@ async function upload() {
         <div class="text-[11px] text-slate-500 mt-1">
           * Kolom <code class="text-slate-400">nama_ruangan</code>, <code class="text-slate-400">triwulan</code>, dan <code class="text-slate-400">kondisi</code> opsional. Bila harga kosong, sistem otomatis mengimputasi hierarkis.
         </div>
+      </div>
+
+      <!-- Pilihan Target Ruangan -->
+      <div class="p-3.5 rounded-lg bg-slate-900/40 border border-slate-800 space-y-2">
+        <label for="select-target-room" class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+          <span>Target Alokasi Ruangan:</span>
+          <span class="text-[11px] font-normal text-slate-500">
+            {{ selectedTarget === 'all' ? 'Sesuai kolom nama_ruangan di CSV' : 'Seluruh baris CSV dimasukkan ke ruangan ini' }}
+          </span>
+        </label>
+        <select
+          id="select-target-room"
+          v-model="selectedTarget"
+          class="input text-xs w-full py-2 bg-slate-950/80 border-slate-800"
+        >
+          <option value="all">Keseluruhan (Otomatis dari Kolom CSV / Campuran Ruangan)</option>
+          <option disabled>────────── Pilih Ruangan Tertentu ──────────</option>
+          <option v-for="r in store.rooms" :key="r.id" :value="String(r.id)">
+            Ruang {{ r.nama }} (ID: {{ r.id }})
+          </option>
+        </select>
       </div>
 
       <!-- File Dropzone -->

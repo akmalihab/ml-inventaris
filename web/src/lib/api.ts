@@ -86,10 +86,11 @@ export const api = {
   explainById: (inventoryId: string) =>
     request<ItemShapResponse>(`/inventaris/${inventoryId}/explain`),
 
-  predictBatch: async (file: File): Promise<BatchResult> => {
+  predictBatch: async (file: File, targetRoomId?: number | null): Promise<BatchResult> => {
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${BASE}/predict/batch`, { method: 'POST', body: form })
+    const qs = targetRoomId ? `?target_room_id=${targetRoomId}` : ''
+    const res = await fetch(`${BASE}/predict/batch${qs}`, { method: 'POST', body: form })
     if (!res.ok) {
       const text = await res.text()
       try {

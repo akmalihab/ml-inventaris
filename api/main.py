@@ -116,7 +116,10 @@ def explain_by_id(inventory_id: str):
 
 
 @app.post("/predict/batch")
-def predict_batch(file: UploadFile = File(...)):
+def predict_batch(
+    file: UploadFile = File(...),
+    target_room_id: int | None = None,
+):
     content = file.file.read().decode("utf-8")
     try:
         df = pd.read_csv(io.StringIO(content))
@@ -183,8 +186,11 @@ def predict_batch(file: UploadFile = File(...)):
                 if kondisi_asli_val not in ("Baik", "Kurang Baik", "Rusak Berat"):
                     kondisi_asli_val = None
 
-                r_name = str(row.get("nama_ruangan", "Adenium")).strip()
-                room_id = room_map.get(r_name) or room_map.get("Adenium") or 1
+                if target_room_id is not None and target_room_id in room_map.values():
+                    room_id = target_room_id
+                else:
+                    r_name = str(row.get("nama_ruangan", "Adenium")).strip()
+                    room_id = room_map.get(r_name) or room_map.get("Adenium") or 1
 
                 inv_rows.append({
                     "room_id": room_id,
