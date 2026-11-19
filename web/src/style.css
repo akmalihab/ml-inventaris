@@ -1,0 +1,326 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    background-color: #090D16;
+    color: #F1F5F9;
+  }
+  body {
+    background-color: #090D16;
+    color: #F1F5F9;
+    overflow-x: hidden;
+  }
+  * { box-sizing: border-box; }
+  :focus-visible { outline: 2px solid #10B981; outline-offset: 2px; }
+  button, [role="button"], a, select, label[for] { cursor: pointer; }
+
+  /* Custom clean scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+  }
+}
+
+@layer components {
+  /* Modern Glass & Solid Cards */
+  .card-modern {
+    @apply bg-[#0F1626]/85 backdrop-blur-md border border-slate-800/80 rounded-xl
+           shadow-md shadow-black/20 transition-all duration-200;
+  }
+
+  .card-interactive {
+    @apply card-modern hover:border-slate-700 hover:bg-[#141D30] hover:shadow-lg hover:shadow-black/40;
+  }
+
+  .card-kpi {
+    @apply relative overflow-hidden bg-gradient-to-br from-[#0F1626] to-[#0A0F1D]
+           border border-slate-800/90 rounded-xl p-5
+           shadow-md shadow-black/20 transition-all duration-200 hover:border-slate-700/90;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold
+           transition-all duration-150 focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer;
+  }
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-medium
+           hover:from-emerald-500 hover:to-emerald-400 active:scale-[0.98]
+           shadow-sm shadow-emerald-950/40 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+  }
+  .btn-secondary {
+    @apply btn bg-slate-800/90 border border-slate-700/70 text-slate-200 hover:bg-slate-700/80 hover:text-white active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn bg-transparent border border-slate-800 text-slate-300 hover:bg-slate-800/60 hover:text-white;
+  }
+  .btn-danger {
+    @apply btn bg-rose-600/90 text-white hover:bg-rose-500 active:scale-[0.98] shadow-sm;
+  }
+
+  /* Status Badges */
+  .badge-baik {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold
+           bg-emerald-500/10 text-emerald-400 border border-emerald-500/25;
+  }
+  .badge-sedang {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold
+           bg-amber-500/10 text-amber-400 border border-amber-500/25;
+  }
+  .badge-tinggi {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold
+           bg-rose-500/10 text-rose-400 border border-rose-500/25;
+  }
+  .badge-perlu {
+    @apply badge-tinggi;
+  }
+
+  /* Form Inputs */
+  .input {
+    @apply w-full bg-[#090E1A] border border-slate-800 rounded-lg px-3.5 py-2.5 text-sm text-slate-100
+           placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40
+           transition-all duration-150;
+  }
+  .label {
+    @apply block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider;
+  }
+}
+
+/* Light Theme Overrides */
+html.light,
+html.light body,
+html.light #app {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+html.light aside {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light header {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .card-modern,
+html.light .card-interactive {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .card-interactive:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light .card-kpi {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Matikan dark linear-gradients pada card container di light mode */
+html.light [class*="bg-gradient-to-r"],
+html.light [class*="bg-gradient-to-tr"],
+html.light [class*="bg-gradient-to-b"] {
+  background-image: none !important;
+  background-color: #FFFFFF !important;
+}
+
+/* Kecualikan tombol gradient dan logo */
+html.light button.btn-primary,
+html.light .btn-primary,
+html.light aside .from-emerald-600 {
+  background-image: linear-gradient(to top right, #059669, #2dd4bf) !important;
+  background-color: transparent !important;
+}
+
+/* Reset semua custom hex background gelap di light mode */
+html.light .bg-\[\#0C1220\],
+html.light .bg-\[\#0C1220\]\/80,
+html.light .bg-\[\#0C1220\]\/60,
+html.light .bg-\[\#0C1220\]\/50,
+html.light .bg-\[\#0C1220\]\/40,
+html.light .bg-\[\#0F1626\],
+html.light .bg-\[\#0F1626\]\/85,
+html.light .bg-\[\#090D16\],
+html.light .bg-\[\#090E1A\],
+html.light .bg-\[\#0A0F1D\],
+html.light .bg-\[\#0A101D\],
+html.light .bg-\[\#111827\],
+html.light .bg-\[\#141D30\] {
+  background-color: #FFFFFF !important;
+}
+
+html.light thead tr,
+html.light table th {
+  background-color: #F8FAFC !important;
+  color: #475569 !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light table td {
+  border-color: #E2E8F0 !important;
+}
+
+html.light table tr:hover {
+  background-color: #F8FAFC !important;
+}
+
+/* Background slate replacement */
+html.light .bg-slate-900,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/30 {
+  background-color: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+}
+
+html.light .bg-slate-800,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/40 {
+  background-color: #F1F5F9 !important;
+  color: #1E293B !important;
+  border-color: #E2E8F0 !important;
+}
+
+/* Border slate replacement */
+html.light .border-slate-800,
+html.light .border-slate-800\/90,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/70,
+html.light .border-slate-800\/60,
+html.light .border-slate-700,
+html.light .border-slate-700\/80,
+html.light .border-slate-700\/70,
+html.light .border-slate-700\/60 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .divide-slate-800\/60 > * + * {
+  border-color: #E2E8F0 !important;
+}
+
+/* Buttons in pagination & tables */
+html.light button.bg-slate-800 {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #334155 !important;
+}
+html.light button.bg-slate-800:hover:not(:disabled) {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+/* Typography Colors */
+html.light .text-white {
+  color: #0F172A !important;
+}
+
+html.light .text-slate-100,
+html.light .text-slate-200 {
+  color: #1E293B !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.light .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+/* Form Inputs & Select */
+html.light .input,
+html.light select {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+html.light .input::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light .label {
+  color: #475569 !important;
+}
+
+/* Buttons */
+html.light .btn-secondary {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #1E293B !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+html.light .btn-secondary:hover {
+  background-color: #F8FAFC !important;
+  border-color: #94A3B8 !important;
+  color: #0F172A !important;
+}
+
+/* Segmented tabs & buttons (filter toolbar) */
+html.light .bg-slate-900 button.bg-slate-800 {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Navigation */
+html.light .nav-item {
+  color: #64748B !important;
+}
+html.light .nav-item:hover {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+html.light .router-link-active.nav-item {
+  color: #059669 !important;
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.12), transparent) !important;
+  border-left-color: #10B981 !important;
+}
+
+/* Status Badges */
+html.light .badge-baik {
+  background-color: #ECFDF5 !important;
+  color: #059669 !important;
+  border-color: #A7F3D0 !important;
+}
+html.light .badge-sedang {
+  background-color: #FFFBEB !important;
+  color: #D97706 !important;
+  border-color: #FDE68A !important;
+}
+html.light .badge-tinggi,
+html.light .badge-perlu {
+  background-color: #FFF1F2 !important;
+  color: #E11D48 !important;
+  border-color: #FECDD3 !important;
+}

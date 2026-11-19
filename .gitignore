@@ -1,0 +1,71 @@
+# Environment & Secrets (SANGAT PENTING: jangan commit API key / Supabase key)
+.env
+.env.*
+!.env.example
+web/.env
+web/.env.*
+!web/.env.example
+
+# Data Mentah & CSV Rumah Sakit (Data rahasia/asli RS)
+data/raw/*.csv
+data/raw/*.xlsx
+data/processed/*.csv
+outputs/
+!outputs/*/.gitkeep
+
+# Models (file biner model besar)
+models/*.pkl
+models/*.json
+
+# Python & Jupyter
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.ipynb_checkpoints/
+.pytest_cache/
+.conda/
+.venv/
+env/
+venv/
+ENV/
+
+# Node & Web Frontend (Vue 3 / Vite)
+node_modules/
+web/node_modules/
+dist/
+web/dist/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Flutter & Android
+**/android/local.properties
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.dart_tool/
+**/build/
+android/inventaris_ml/build/
+android/inventaris_ml/.dart_tool/
+android/inventaris_ml/android/.gradle/
+android/inventaris_ml/android/app/build/
+**/.gradle/
+*.apk
+*.aab
+*.dex
+*.class
+
+# IDE & Editor & AI tooling
+**/.opencode/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db

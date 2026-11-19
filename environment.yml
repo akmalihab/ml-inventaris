@@ -1,0 +1,26 @@
+# Env khusus project ini — JANGAN install di base, JANGAN pakai env uas-bda / skripsi-rfsmote
+# Cara pakai (di laptop Windows, Anaconda Prompt / VSCode terminal):
+#   conda env create -f environment.yml
+#   conda activate ml-inventaris
+# CATATAN 2026-11-18: xgboost DIPINDAH ke pip — versi conda menarik cudatoolkit
+# (library GPU NVIDIA, ~1 GB+) padahal project ini tidak butuh GPU sama sekali:
+# data cuma 2.301 baris, 5 fitur, XGBoost + TreeSHAP jalan di CPU dalam hitungan detik.
+name: ml-inventaris
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pandas=2.2.*
+  - numpy=1.26.*
+  - scikit-learn=1.5.*
+  - matplotlib=3.8.*
+  - seaborn=0.13.*
+  - jupyter
+  - joblib
+  - imbalanced-learn=0.13.*
+  - shap=0.46.*
+  - pip:
+      - xgboost==2.1.1
+      - openpyxl
