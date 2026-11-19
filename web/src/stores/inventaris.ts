@@ -82,7 +82,7 @@ export const useInventarisStore = defineStore('inventaris', () => {
       .from('predictions')
       .select('*, inventories(nama_barang, room_id, bahan, kategori, tahun_pembelian, jumlah, harga, rooms(nama))')
       .order('created_at', { ascending: false })
-      .limit(200)
+      .limit(1000)
     if (room_id !== undefined) q = q.eq('inventories.room_id', room_id)
     const { data, error: e } = await q
     loading.value = false

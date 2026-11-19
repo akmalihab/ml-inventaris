@@ -5,6 +5,26 @@ import '../models/prediction_result.dart';
 class SupabaseService {
   final SupabaseClient client = Supabase.instance.client;
 
+  Future<List<Map<String, dynamic>>> getRoomSummaries() async {
+    final response = await client.from('room_summary').select().order('id', ascending: true);
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  Future<List<Map<String, dynamic>>> getAllPredictions() async {
+    final response = await client
+        .from('predictions')
+        .select('''
+          id, prob_perlu_pemeliharaan, label_biner, threshold, prioritas, koreksi_petugas,
+          inventories (
+            id, nama_barang, kategori, bahan, tahun_pembelian, harga, room_id,
+            rooms (id, nama)
+          )
+        ''')
+        .order('created_at', ascending: false)
+        .limit(1000);
+    return List<Map<String, dynamic>>.from(response);
+  }
+
   Future<List<Room>> getRooms() async {
     final response = await client.from('rooms').select().order('id', ascending: true);
     return (response as List).map((e) => Room.fromJson(e)).toList();

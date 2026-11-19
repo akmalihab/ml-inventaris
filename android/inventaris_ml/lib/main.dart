@@ -5,6 +5,7 @@ import 'services/theme_service.dart';
 import 'screens/form_screen.dart';
 import 'screens/rooms_screen.dart';
 import 'screens/maintenance_screen.dart';
+import 'screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,21 +89,27 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    FormScreen(),
-    RoomsScreen(),
-    MaintenanceScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      DashboardScreen(onNavigateTab: (idx) => setState(() => _currentIndex = idx)),
+      const FormScreen(),
+      const RoomsScreen(),
+      const MaintenanceScreen(),
+    ];
+
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: screens[_currentIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
-        indicatorColor: const Color(0xFF10B981).withOpacity(0.2),
+        indicatorColor: const Color(0xFF10B981).withValues(alpha: 0.2),
         destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.analytics_outlined),
+            selectedIcon: Icon(Icons.analytics, color: Color(0xFF10B981)),
+            label: 'Dashboard',
+          ),
           NavigationDestination(
             icon: Icon(Icons.add_circle_outline),
             selectedIcon: Icon(Icons.add_circle, color: Color(0xFF10B981)),

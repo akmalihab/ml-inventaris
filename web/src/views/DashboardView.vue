@@ -56,6 +56,147 @@ const paginatedPrioritasTinggi = computed(() => {
   const start = (pageKritis.value - 1) * sizeKritis
   return allPrioritasTinggi.value.slice(start, start + sizeKritis)
 })
+
+const chartMode = ref<'ruangan' | 'kategori'>('ruangan')
+const hoveredItem = ref<any | null>(null)
+
+// Distribusi per Kategori
+const categoryStats = computed(() => {
+  const map: Record<string, { total: number; perlu: number; tinggi: number; baik: number }> = {}
+  store.predictions.forEach(p => {
+    const kat = p.inventories?.kategori || 'Lainnya'
+    if (!map[kat]) {
+      map[kat] = { total: 0, perlu: 0, tinggi: 0, baik: 0 }
+    }
+    map[kat].total++
+    const isPerlu = p.koreksi_petugas === 1 || (p.koreksi_petugas === null && p.label_biner === 1)
+    if (isPerlu) {
+      map[kat].perlu++
+      if (p.prioritas === 'Tinggi') map[kat].tinggi++
+    } else {
+      map[kat].baik++
+    }
+  })
+  return Object.entries(map).map(([kategori, s]) => ({
+    label: kategori,
+    ...s,
+    ratioPerlu: s.total > 0 ? (s.perlu / s.total) * 100 : 0
+  })).sort((a, b) => b.total - a.total)
+})
+
+// Item Chart berdasarkan mode
+const chartItems = computed(() => {
+  if (chartMode.value === 'ruangan') {
+    return roomStats.value.map(r => {
+      const baik = Math.max(0, r.total - r.perlu)
+      return {
+        id: `room-${r.id}`,
+        label: r.nama,
+        shortLabel: `R.${r.id}`,
+        total: r.total,
+        baik,
+        perlu: r.perlu,
+        tinggi: r.tinggi,
+        ratioPerlu: r.total > 0 ? (r.perlu / r.total) * 100 : 0,
+        route: `/ruangan?id=${r.id}`
+      }
+    })
+  } else {
+    return categoryStats.value.map((c, idx) => ({
+      id: `kat-${idx}`,
+      label: c.label,
+      shortLabel: c.label,
+      total: c.total,
+      baik: c.baik,
+      perlu: c.perlu,
+      tinggi: c.tinggi,
+      ratioPerlu: c.ratioPerlu,
+      route: '/ruangan'
+    }))
+  }
+})
+
+const maxChartValue = computed(() => {
+  const max = Math.max(...chartItems.value.map(i => i.total), 1)
+  return Math.ceil(max * 1.1)
+})
+
+// Pengingat Keputusan Bisnis Cerdas
+const businessReminders = computed(() => {
+  const reminders = []
+
+  // 1. Total Nilai & Aset Kritis
+  const criticalItems = store.predictions.filter(p => p.prioritas === 'Tinggi' && p.koreksi_petugas !== 0)
+  const totalNilaiKritis = criticalItems.reduce((acc, p) => acc + (p.inventories?.harga || 0), 0)
+
+  if (criticalItems.length > 0) {
+    reminders.push({
+      id: 'anggaran',
+      level: 'danger',
+      tag: 'Alokasi Anggaran',
+      title: `${criticalItems.length} Aset Prioritas Kritis Perlu Tindakan Segera`,
+      desc: `Total estimasi nilai aset berisiko tinggi mencapai Rp ${totalNilaiKritis.toLocaleString('id-ID')}. Direkomendasikan segera alokasikan anggaran perbaikan atau pengadaan suku cadang kritis.`,
+      actionText: 'Tinjau Aset Kritis',
+      actionLink: '#antrean-kritis',
+    })
+  }
+
+  // 2. Kategori dengan rasio kerusakan tinggi
+  const criticalCategory = [...categoryStats.value].sort((a, b) => b.ratioPerlu - a.ratioPerlu)[0]
+  if (criticalCategory && criticalCategory.perlu > 0) {
+    reminders.push({
+      id: 'kategori',
+      level: 'warning',
+      tag: 'Fokus Kategori',
+      title: `Kerusakan Terkonsentrasi pada Kategori ${criticalCategory.label}`,
+      desc: `${criticalCategory.perlu} dari ${criticalCategory.total} unit (${criticalCategory.ratioPerlu.toFixed(0)}%) terprediksi membutuhkan pemeliharaan. Jadwalkan inspeksi teknis preventif serentak untuk kategori ini.`,
+      actionText: 'Filter Inventaris',
+      actionLink: '/ruangan',
+    })
+  }
+
+  // 3. Ruangan dengan risiko kerusakan tinggi (>= 50%)
+  const criticalRooms = roomStats.value.filter(r => r.total > 0 && (r.perlu / r.total) >= 0.5)
+  if (criticalRooms.length > 0) {
+    reminders.push({
+      id: 'ruangan',
+      level: 'danger',
+      tag: 'Audit Ruangan',
+      title: `${criticalRooms.length} Ruang Rawat Inap Beban Pemeliharaan Tinggi`,
+      desc: `Ruang ${criticalRooms.slice(0, 3).map(r => r.nama).join(', ')}${criticalRooms.length > 3 ? ' dkk.' : ''} memiliki rasio kerusakan ≥ 50%. Prioritaskan rotasi bed & fasilitas non-medis agar kenyamanan pasien terjaga.`,
+      actionText: 'Audit Ruangan',
+      actionLink: `/ruangan?id=${criticalRooms[0].id}`,
+    })
+  }
+
+  // 4. Antrean tugas belum tertangani
+  const pendingTasks = store.tasks.filter(t => t.status === 'Antre')
+  if (pendingTasks.length > 0) {
+    reminders.push({
+      id: 'tugas',
+      level: 'info',
+      tag: 'Operasional Teknisi',
+      title: `${pendingTasks.length} Tiket Servis Belum Dikerjakan (Antre)`,
+      desc: `Terdapat antrean tugas pemeliharaan yang belum diproses oleh tim teknisi. Segera delegasikan tugas atau hubungi teknisi rekanan RSD dr. Soebandi.`,
+      actionText: 'Buka Antrean',
+      actionLink: '/pemeliharaan',
+    })
+  }
+
+  if (reminders.length === 0) {
+    reminders.push({
+      id: 'optimal',
+      level: 'success',
+      tag: 'Kondisi Optimal',
+      title: 'Seluruh Kondisi Inventaris Terkendali',
+      desc: 'Tidak ada anomali atau akumulasi kegagalan fasilitas non-medis. Terus lakukan pemantauan kondisi secara preventif.',
+      actionText: 'Lihat Ruangan',
+      actionLink: '/ruangan',
+    })
+  }
+
+  return reminders
+})
 </script>
 
 <template>
@@ -161,6 +302,229 @@ const paginatedPrioritasTinggi = computed(() => {
       </div>
     </div>
 
+    <!-- Analytics & Decision Reminders Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <!-- Left: Bar Chart Komparasi Kondisi Inventaris (7 cols) -->
+      <section class="lg:col-span-7 card-modern p-5 flex flex-col justify-between">
+        <div>
+          <!-- Header Chart -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h2 class="text-sm font-bold font-heading text-white">Visualisasi Kondisi Inventaris</h2>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">Komparasi aset Baik vs Perlu Pemeliharaan</p>
+            </div>
+
+            <!-- View Switcher Tabs -->
+            <div class="flex items-center p-0.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] self-start sm:self-auto">
+              <button
+                @click="chartMode = 'ruangan'"
+                :class="[
+                  'px-3 py-1 rounded-md font-medium transition-all',
+                  chartMode === 'ruangan'
+                    ? 'bg-slate-800 text-emerald-400 shadow-sm border border-slate-700/80 font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                ]"
+              >
+                Per Ruangan (12)
+              </button>
+              <button
+                @click="chartMode = 'kategori'"
+                :class="[
+                  'px-3 py-1 rounded-md font-medium transition-all',
+                  chartMode === 'kategori'
+                    ? 'bg-slate-800 text-emerald-400 shadow-sm border border-slate-700/80 font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                ]"
+              >
+                Per Kategori
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart Legend -->
+          <div class="flex items-center gap-4 text-[11px] text-slate-400 mb-4 pb-3 border-b border-slate-800/80">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
+              <span>Kondisi Baik</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>
+              <span>Perlu Pemeliharaan</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span>
+              <span>Prioritas Kritis</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Bar Chart Container -->
+          <div class="relative pt-2 pb-6">
+            <div v-if="chartItems.length === 0" class="py-12 text-center text-xs text-slate-500">
+              Belum ada data inventaris untuk visualisasi chart.
+            </div>
+
+            <!-- Flex Bar Chart -->
+            <div v-else class="flex items-end gap-2 sm:gap-3 h-48 sm:h-52 w-full pt-6 px-1">
+              <div
+                v-for="item in chartItems"
+                :key="item.id"
+                class="flex-1 flex flex-col items-center h-full justify-end group relative cursor-pointer"
+                @mouseenter="hoveredItem = item"
+                @mouseleave="hoveredItem = null"
+              >
+                <!-- Tooltip on Hover -->
+                <div
+                  v-if="hoveredItem?.id === item.id"
+                  class="absolute bottom-full mb-2 z-30 pointer-events-none p-2 rounded-lg bg-slate-900 border border-slate-700 shadow-xl text-[11px] text-slate-200 whitespace-nowrap -translate-x-1/2 left-1/2 animate-in fade-in zoom-in-95 duration-150"
+                >
+                  <p class="font-bold text-white mb-1">{{ item.label }}</p>
+                  <div class="space-y-0.5 font-mono text-[10px]">
+                    <div class="text-emerald-400 flex justify-between gap-3">
+                      <span>Baik:</span>
+                      <span>{{ item.baik }} unit</span>
+                    </div>
+                    <div class="text-amber-400 flex justify-between gap-3">
+                      <span>Perlu Servis:</span>
+                      <span>{{ item.perlu }} unit</span>
+                    </div>
+                    <div v-if="item.tinggi > 0" class="text-rose-400 flex justify-between gap-3 font-bold">
+                      <span>Kritis:</span>
+                      <span>{{ item.tinggi }} unit</span>
+                    </div>
+                    <div class="text-slate-400 border-t border-slate-800 pt-0.5 mt-0.5 flex justify-between gap-3">
+                      <span>Total Aset:</span>
+                      <span>{{ item.total }} unit</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Stacked Vertical Bars -->
+                <div class="w-full max-w-[28px] flex flex-col justify-end h-full rounded-t overflow-hidden bg-slate-800/40 border border-slate-800 group-hover:border-slate-600 transition-all">
+                  <!-- Bar Perlu (Amber / Red) -->
+                  <div
+                    v-if="item.perlu > 0"
+                    class="w-full transition-all duration-300"
+                    :class="item.tinggi > 0 ? 'bg-gradient-to-t from-amber-500 to-rose-500' : 'bg-amber-500'"
+                    :style="{ height: `${Math.max(4, (item.perlu / maxChartValue) * 100)}%` }"
+                  ></div>
+                  <!-- Bar Baik (Emerald) -->
+                  <div
+                    v-if="item.baik > 0"
+                    class="w-full bg-emerald-500 transition-all duration-300"
+                    :style="{ height: `${Math.max(4, (item.baik / maxChartValue) * 100)}%` }"
+                  ></div>
+                </div>
+
+                <!-- Bar Label -->
+                <div class="mt-2 text-[10px] font-mono text-center truncate max-w-full text-slate-400 group-hover:text-emerald-400 group-hover:font-bold transition-colors">
+                  {{ item.shortLabel }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Chart Summary -->
+        <div class="pt-3 border-t border-slate-800/70 flex items-center justify-between text-[11px] text-slate-400">
+          <span>Kapasitas tertinggi: <strong class="text-slate-200 font-mono">{{ Math.max(...chartItems.map(i => i.total), 0) }} unit</strong></span>
+          <span class="text-emerald-400 font-medium">Beban Rata-Rata: {{ totalBarang > 0 ? ((totalPerlu / totalBarang) * 100).toFixed(1) : 0 }}% Perlu Servis</span>
+        </div>
+      </section>
+
+      <!-- Right: Kolom Pengingat Keputusan Bisnis (5 cols) -->
+      <section class="lg:col-span-5 card-modern p-5 flex flex-col justify-between">
+        <div>
+          <!-- Header Pengingat -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold font-heading text-white">Pengingat Keputusan Bisnis</h2>
+                <p class="text-[11px] text-slate-400">Rekomendasi tindakan manajerial rumah sakit</p>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30">
+              {{ businessReminders.length }} Agenda
+            </span>
+          </div>
+
+          <!-- List Kartu Keputusan Bisnis -->
+          <div class="space-y-3">
+            <div
+              v-for="rem in businessReminders"
+              :key="rem.id"
+              class="p-3.5 rounded-xl border transition-all duration-200"
+              :class="[
+                rem.level === 'danger'
+                  ? 'bg-rose-500/5 border-rose-500/30 hover:border-rose-500/50'
+                  : rem.level === 'warning'
+                  ? 'bg-amber-500/5 border-amber-500/30 hover:border-amber-500/50'
+                  : rem.level === 'info'
+                  ? 'bg-sky-500/5 border-sky-500/30 hover:border-sky-500/50'
+                  : 'bg-emerald-500/5 border-emerald-500/30 hover:border-emerald-500/50'
+              ]"
+            >
+              <div class="flex items-center justify-between mb-1.5">
+                <span
+                  class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider"
+                  :class="[
+                    rem.level === 'danger'
+                      ? 'bg-rose-500/20 text-rose-300'
+                      : rem.level === 'warning'
+                      ? 'bg-amber-500/20 text-amber-300'
+                      : rem.level === 'info'
+                      ? 'bg-sky-500/20 text-sky-300'
+                      : 'bg-emerald-500/20 text-emerald-300'
+                  ]"
+                >
+                  {{ rem.tag }}
+                </span>
+                <span
+                  v-if="rem.level === 'danger'"
+                  class="text-[10px] text-rose-400 font-semibold flex items-center gap-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span> Segera
+                </span>
+              </div>
+              <h3 class="text-xs font-bold text-slate-100 mb-1 leading-snug">
+                {{ rem.title }}
+              </h3>
+              <p class="text-[11px] text-slate-400 leading-relaxed mb-2.5">
+                {{ rem.desc }}
+              </p>
+              <div class="flex justify-end">
+                <RouterLink
+                  :to="rem.actionLink"
+                  class="text-[11px] font-semibold inline-flex items-center gap-1 transition-colors"
+                  :class="[
+                    rem.level === 'danger'
+                      ? 'text-rose-400 hover:text-rose-300'
+                      : rem.level === 'warning'
+                      ? 'text-amber-400 hover:text-amber-300'
+                      : rem.level === 'info'
+                      ? 'text-sky-400 hover:text-sky-300'
+                      : 'text-emerald-400 hover:text-emerald-300'
+                  ]"
+                >
+                  {{ rem.actionText }} &rarr;
+                </RouterLink>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/70 text-[10px] text-slate-500 flex items-center justify-between">
+          <span>Sistem Pendukung Keputusan (SPK)</span>
+          <span class="font-mono">RSD dr. Soebandi</span>
+        </div>
+      </section>
+    </div>
+
     <!-- Main Grid: Room Cards + Priority Table -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Left: 12 Ruangan Grid (7 cols on lg) -->
@@ -248,7 +612,7 @@ const paginatedPrioritasTinggi = computed(() => {
       </section>
 
       <!-- Right: Prioritas Tinggi Table (5 cols on lg) -->
-      <section class="lg:col-span-5 space-y-3">
+      <section id="antrean-kritis" class="lg:col-span-5 space-y-3">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-sm font-bold font-heading text-white">Antrean Prioritas Kritis</h2>
