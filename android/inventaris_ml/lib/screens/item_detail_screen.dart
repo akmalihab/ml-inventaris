@@ -384,9 +384,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                             minHeight: 8,
                             backgroundColor: const Color(0xFFE2E8F0),
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              probPct > 80
+                              probPct > 66.7
                                   ? const Color(0xFFE11D48)
-                                  : probPct > 41.7
+                                  : probPct > 33.3
                                       ? const Color(0xFFF59E0B)
                                       : const Color(0xFF10B981),
                             ),

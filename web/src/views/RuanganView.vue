@@ -385,7 +385,7 @@ async function handleDeleteItem(id: string, nama: string) {
                 <span
                   v-if="item.predictions && item.predictions.length > 0"
                   class="font-mono font-bold"
-                  :class="item.predictions[0].prob_perlu_pemeliharaan > 0.8 ? 'text-rose-400' : item.predictions[0].prob_perlu_pemeliharaan >= 0.417 ? 'text-amber-400' : 'text-emerald-400'"
+                  :class="item.predictions[0].prob_perlu_pemeliharaan > 0.667 ? 'text-rose-400' : item.predictions[0].prob_perlu_pemeliharaan > 0.333 ? 'text-amber-400' : 'text-emerald-400'"
                 >
                   {{ (item.predictions[0].prob_perlu_pemeliharaan * 100).toFixed(1) }}%
                 </span>

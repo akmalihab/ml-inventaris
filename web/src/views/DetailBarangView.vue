@@ -216,9 +216,14 @@ async function hapusAset() {
             <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
               <div
                 class="h-full rounded-full transition-all duration-500"
-                :class="probBar > 80 ? 'bg-gradient-to-r from-amber-500 to-rose-500' : probBar > 41.7 ? 'bg-amber-500' : 'bg-emerald-500'"
+                :class="probBar > 66.7 ? 'bg-rose-500' : probBar > 33.3 ? 'bg-amber-500' : 'bg-emerald-500'"
                 :style="{ width: `${probBar}%` }"
               />
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono pt-0.5">
+              <span class="text-emerald-400">0% - 33.3% (Hijau)</span>
+              <span class="text-amber-400">33.4% - 66.7% (Kuning)</span>
+              <span class="text-rose-400">66.8% - 100% (Merah)</span>
             </div>
           </div>
 

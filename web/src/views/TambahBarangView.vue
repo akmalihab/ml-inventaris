@@ -297,14 +297,14 @@ async function submit() {
         <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
           <div
             class="h-full rounded-full transition-all duration-300"
-            :class="result.probabilitas > 0.8 ? 'bg-gradient-to-r from-amber-500 to-rose-500' : result.probabilitas >= 0.417 ? 'bg-amber-500' : 'bg-emerald-500'"
+            :class="result.probabilitas > 0.667 ? 'bg-rose-500' : result.probabilitas > 0.333 ? 'bg-amber-500' : 'bg-emerald-500'"
             :style="{ width: `${result.probabilitas * 100}%` }"
           ></div>
         </div>
         <div class="flex justify-between text-[10px] text-slate-500">
-          <span>0% (Aman)</span>
-          <span class="font-mono text-emerald-400">Threshold: 41.7% (F2)</span>
-          <span>100% (Kritis)</span>
+          <span class="text-emerald-400">0% - 33.3% Hijau</span>
+          <span class="text-amber-400">33.4% - 66.7% Kuning</span>
+          <span class="text-rose-400">66.8% - 100% Merah</span>
         </div>
       </div>
 

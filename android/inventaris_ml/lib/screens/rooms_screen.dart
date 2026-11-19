@@ -750,9 +750,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
                         minHeight: 5,
                         backgroundColor: const Color(0xFFF1F5F9),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          prob > 0.8
+                          prob > 0.667
                               ? const Color(0xFFE11D48)
-                              : prob > 0.417
+                              : prob > 0.333
                                   ? const Color(0xFFF59E0B)
                                   : const Color(0xFF10B981),
                         ),
