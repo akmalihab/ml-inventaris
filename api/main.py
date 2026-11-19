@@ -18,12 +18,19 @@ from api.predict import predict_one, predict_batch_df, explain_item, model_versi
 
 app = FastAPI(title="ML Inventaris API")
 
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,https://app.lynxagent.my.id,http://localhost:8000"
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://app.lynxagent.my.id",
-    ],
+    allow_origins=cors_origins if cors_origins else ["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
