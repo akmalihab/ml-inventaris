@@ -230,19 +230,19 @@ const businessReminders = computed(() => {
     <!-- KPI Metric Cards Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Total Barang -->
-      <div class="card-kpi group">
+      <div class="card-kpi group hover:border-sky-500/30">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Aset Terdaftar</span>
-          <div class="w-9 h-9 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-300 group-hover:text-emerald-400 transition-colors">
+          <span class="text-xs font-semibold text-sky-400/90 uppercase tracking-wider">Total Aset Terdaftar</span>
+          <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-105 transition-all">
             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
           </div>
         </div>
         <div class="mt-3 flex items-baseline gap-2">
-          <span class="text-3xl font-extrabold font-mono text-white tracking-tight">{{ totalBarang.toLocaleString('id-ID') }}</span>
+          <span class="text-3xl font-extrabold font-mono text-sky-400 tracking-tight">{{ totalBarang.toLocaleString('id-ID') }}</span>
           <span class="text-[11px] text-slate-400 font-medium">unit</span>
         </div>
-        <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> 12 ruangan rawat inap
+        <div class="mt-2 text-[11px] text-sky-400/80 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> 12 ruangan rawat inap
         </div>
       </div>
 
