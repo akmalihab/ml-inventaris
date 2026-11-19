@@ -2,7 +2,7 @@ class AppConfig {
   // Ganti IP jika menggunakan device fisik tanpa adb reverse (cth: 'http://192.168.1.X:8000')
   // Bila menggunakan adb reverse tcp:8000 tcp:8000, gunakan 'http://127.0.0.1:8000'
   // Bila Android Emulator standar, gunakan 'http://10.0.2.2:8000'
-  static String apiBaseUrl = 'http://10.0.2.2:8000';
+  static String apiBaseUrl = 'http://127.0.0.1:8000';
 
   static const String supabaseUrl = 'https://fxsepvbpefhuvjubhjmc.supabase.co';
   static const String supabaseAnonKey =

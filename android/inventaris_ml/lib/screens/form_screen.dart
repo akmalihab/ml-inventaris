@@ -112,9 +112,12 @@ class _FormScreenState extends State<FormScreen> {
       final jumlah = int.parse(_jumlahController.text.trim());
       final harga = double.parse(_hargaController.text.trim());
 
+      final room = _rooms.firstWhere((r) => r.id == _selectedRoomId);
+
       // 1. Panggil FastAPI /predict
       final predResult = await _apiService.predictItem(
         namaBarang: nama,
+        namaRuangan: room.nama,
         bahan: _selectedBahan,
         kategori: _selectedKategori,
         tahunPembelian: tahun,

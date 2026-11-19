@@ -42,10 +42,11 @@ class PredictionResult {
   bool get isPerluPemeliharaan => (koreksiPetugas ?? labelBiner) == 1;
 
   factory PredictionResult.fromJson(Map<String, dynamic> json, {String? invId, String? predId}) {
-    final rawShap = json['shap_top3'] as List<dynamic>? ?? [];
+    final rawShap = (json['shap_top3'] ?? json['alasan_top3']) as List<dynamic>? ?? [];
+    final prob = (json['probabilitas'] ?? json['prob_perlu_pemeliharaan'] ?? 0.0) as num;
     return PredictionResult(
-      probabilitas: (json['prob_perlu_pemeliharaan'] as num).toDouble(),
-      labelBiner: (json['label_biner'] as num).toInt(),
+      probabilitas: prob.toDouble(),
+      labelBiner: (json['label_biner'] as num?)?.toInt() ?? 0,
       threshold: (json['threshold'] as num?)?.toDouble() ?? 0.417,
       prioritas: json['prioritas'] as String? ?? 'Baik',
       shapTop3: rawShap

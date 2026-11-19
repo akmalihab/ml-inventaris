@@ -6,6 +6,7 @@ import '../models/prediction_result.dart';
 class ApiService {
   Future<PredictionResult> predictItem({
     required String namaBarang,
+    required String namaRuangan,
     required String bahan,
     required String kategori,
     required int tahunPembelian,
@@ -16,12 +17,13 @@ class ApiService {
     final url = Uri.parse('${AppConfig.apiBaseUrl}/predict');
     final payload = {
       'nama_barang': namaBarang,
+      'nama_ruangan': namaRuangan,
       'bahan': bahan,
       'kategori': kategori,
       'tahun_pembelian': tahunPembelian,
       'jumlah': jumlah,
       'harga': harga,
-      'triwulan': ?triwulan,
+      if (triwulan != null) 'triwulan': triwulan,
     };
 
     final response = await http
