@@ -216,12 +216,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Dashboard & Keputusan',
+              'SIART',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Text(
-              'Sistem Pendukung Keputusan RSD dr. Soebandi',
-              style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7)),
+              'Sistem Informasi Alat Rumah Tangga • RSD dr. Soebandi',
+              style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.7)),
             ),
           ],
         ),

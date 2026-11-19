@@ -27,7 +27,7 @@ class InventarisApp extends StatelessWidget {
       valueListenable: ThemeService.instance.themeModeNotifier,
       builder: (context, themeMode, _) {
         return MaterialApp(
-          title: 'ML Inventaris Non-Medis',
+          title: 'SIART - Sistem Informasi Alat Rumah Tangga',
           debugShowCheckedModeBanner: false,
           themeMode: themeMode,
           theme: ThemeData(
