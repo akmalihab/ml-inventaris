@@ -12,10 +12,10 @@
           </div>
           <div class="min-w-0">
             <div class="font-heading font-bold text-sm text-white tracking-tight flex items-center gap-1.5">
-              <span>ML Inventaris</span>
+              <span>START</span>
               <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">AI</span>
             </div>
-            <p class="text-[11px] text-slate-400 truncate mt-0.5">RSD dr. Soebandi</p>
+            <p class="text-[10px] text-slate-400 truncate mt-0.5" title="Sistem Terpadu Alat Rumah Tangga">Sistem Terpadu ART</p>
           </div>
         </div>
 
