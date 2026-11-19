@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/room.dart';
 import '../services/supabase_service.dart';
+import '../services/theme_service.dart';
 import 'item_detail_screen.dart';
 
 class RoomsScreen extends StatefulWidget {
@@ -246,6 +247,14 @@ class _RoomsScreenState extends State<RoomsScreen> {
         backgroundColor: const Color(0xFF0F172A),
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: Icon(
+              ThemeService.instance.isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              color: const Color(0xFFFBBF24),
+            ),
+            onPressed: () => setState(() => ThemeService.instance.toggleTheme()),
+            tooltip: 'Ganti Tema',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {

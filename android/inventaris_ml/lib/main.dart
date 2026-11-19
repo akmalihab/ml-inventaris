@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config.dart';
+import 'services/theme_service.dart';
 import 'screens/form_screen.dart';
 import 'screens/rooms_screen.dart';
 import 'screens/maintenance_screen.dart';
@@ -21,23 +22,58 @@ class InventarisApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ML Inventaris Non-Medis',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF10B981),
-          primary: const Color(0xFF10B981),
-          surface: const Color(0xFFF8FAFC),
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF1F5F9),
-        cardTheme: const CardThemeData(
-          color: Colors.white,
-          surfaceTintColor: Colors.transparent,
-        ),
-      ),
-      home: const MainNavigationScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeService.instance.themeModeNotifier,
+      builder: (context, themeMode, _) {
+        return MaterialApp(
+          title: 'ML Inventaris Non-Medis',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeMode,
+          theme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(
+              brightness: Brightness.light,
+              seedColor: const Color(0xFF10B981),
+              primary: const Color(0xFF10B981),
+              surface: const Color(0xFFF8FAFC),
+            ),
+            scaffoldBackgroundColor: const Color(0xFFF1F5F9),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF0F172A),
+              foregroundColor: Colors.white,
+            ),
+            cardTheme: const CardThemeData(
+              color: Colors.white,
+              surfaceTintColor: Colors.transparent,
+            ),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.dark,
+            colorScheme: ColorScheme.fromSeed(
+              brightness: Brightness.dark,
+              seedColor: const Color(0xFF10B981),
+              primary: const Color(0xFF10B981),
+              surface: const Color(0xFF0F172A),
+            ),
+            scaffoldBackgroundColor: const Color(0xFF090D16),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF0F172A),
+              foregroundColor: Colors.white,
+            ),
+            cardTheme: const CardThemeData(
+              color: Color(0xFF0F172A),
+              surfaceTintColor: Colors.transparent,
+            ),
+            navigationBarTheme: NavigationBarThemeData(
+              backgroundColor: const Color(0xFF0F172A),
+              indicatorColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+            ),
+          ),
+          home: const MainNavigationScreen(),
+        );
+      },
     );
   }
 }

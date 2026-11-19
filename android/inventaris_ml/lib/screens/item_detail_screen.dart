@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/supabase_service.dart';
 import '../services/api_service.dart';
+import '../services/theme_service.dart';
 
 class ItemDetailScreen extends StatefulWidget {
   final String inventoryId;
@@ -170,6 +171,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         backgroundColor: const Color(0xFF0F172A),
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: Icon(
+              ThemeService.instance.isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              color: const Color(0xFFFBBF24),
+            ),
+            onPressed: () => setState(() => ThemeService.instance.toggleTheme()),
+            tooltip: 'Ganti Tema',
+          ),
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Color(0xFFFDA4AF)),
             onPressed: (_isLoading || _inventory == null) ? null : _handleDeleteAsset,

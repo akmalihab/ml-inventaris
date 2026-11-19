@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/room.dart';
 import '../services/api_service.dart';
 import '../services/supabase_service.dart';
+import '../services/theme_service.dart';
 import 'item_detail_screen.dart';
 
 class FormScreen extends StatefulWidget {
@@ -195,6 +196,14 @@ class _FormScreenState extends State<FormScreen> {
         backgroundColor: const Color(0xFF0F172A),
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: Icon(
+              ThemeService.instance.isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              color: const Color(0xFFFBBF24),
+            ),
+            onPressed: () => setState(() => ThemeService.instance.toggleTheme()),
+            tooltip: 'Ganti Tema',
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: TextButton.icon(
