@@ -16,13 +16,30 @@ const TAHUN_MAX = currentYear
 
 const form = reactive({
   nama_barang: '', nama_ruangan: 'Adenium', bahan: 'Besi', kategori: 'Elektronik',
-  tahun_pembelian: currentYear, jumlah: 1, harga: 0,
+  tahun_pembelian: currentYear, jumlah: 1, harga: 0, triwulan: `TW ${currentQuarter}`,
 })
 
 const errors   = reactive<Record<string, string>>({})
 const loading  = ref(false)
 const result   = ref<PredictResponse | null>(null)
 const apiError = ref<string | null>(null)
+
+function applyBenchmarkPreset() {
+  form.nama_barang = 'AC Panasonic 2 PK'
+  form.nama_ruangan = 'Adenium'
+  form.bahan = 'Besi'
+  form.kategori = 'Elektronik'
+  form.tahun_pembelian = 2013
+  form.jumlah = 1
+  form.harga = 10845230
+  form.triwulan = 'TW 2'
+}
+
+function resetWaktuOtomatis() {
+  const now = new Date()
+  form.tahun_pembelian = now.getFullYear()
+  form.triwulan = `TW ${Math.ceil((now.getMonth() + 1) / 3)}`
+}
 
 function validate() {
   Object.keys(errors).forEach(k => delete errors[k])
@@ -48,13 +65,49 @@ async function submit() {
 
 <template>
   <div class="max-w-3xl space-y-6">
-    <div>
-      <h1 class="text-xl lg:text-2xl font-bold tracking-tight text-white font-heading">
-        Tambah Aset & Prediksi Kondisi
-      </h1>
-      <p class="text-xs text-slate-400 mt-1">
-        Input data inventaris nonmedis baru. Prediksi XGBoost dan faktor penjelas SHAP dihitung otomatis.
-      </p>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-xl lg:text-2xl font-bold tracking-tight text-white font-heading">
+          Tambah Aset & Prediksi Kondisi
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">
+          Input data inventaris nonmedis baru. Prediksi XGBoost dan faktor penjelas SHAP dihitung otomatis.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          @click="applyBenchmarkPreset"
+          class="px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+          Preset AC Benchmark
+        </button>
+      </div>
+    </div>
+
+    <!-- Banner Waktu & Timezone Otomatis -->
+    <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <div>
+          <div class="font-semibold text-emerald-300">
+            Periode Berjalan: Tahun {{ currentYear }} &middot; TW {{ currentQuarter }}
+          </div>
+          <div class="text-[11px] text-slate-400">
+            Otomatis disinkronkan berdasarkan zona waktu lokal browser/sistem.
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        @click="resetWaktuOtomatis"
+        class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-[11px] font-medium transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+      >
+        Setel Ulang Waktu Ini
+      </button>
     </div>
 
     <!-- Error summary -->
@@ -135,8 +188,8 @@ async function submit() {
         </div>
       </div>
 
-      <!-- Tahun + Jumlah + Harga -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <!-- Tahun + Triwulan + Jumlah + Harga -->
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div>
           <label class="label" for="field-tahun_pembelian">Tahun Pembelian</label>
           <input
@@ -149,6 +202,19 @@ async function submit() {
             :class="{ '!border-rose-500': errors.tahun_pembelian }"
           />
           <p v-if="errors.tahun_pembelian" class="err-msg" role="alert">{{ errors.tahun_pembelian }}</p>
+        </div>
+        <div>
+          <label class="label" for="field-triwulan">Triwulan (Otomatis)</label>
+          <select
+            id="field-triwulan"
+            v-model="form.triwulan"
+            class="input font-mono"
+          >
+            <option value="TW 1">TW 1 (Jan–Mar)</option>
+            <option value="TW 2">TW 2 (Apr–Jun)</option>
+            <option value="TW 3">TW 3 (Jul–Sep)</option>
+            <option value="TW 4">TW 4 (Okt–Des)</option>
+          </select>
         </div>
         <div>
           <label class="label" for="field-jumlah">Jumlah Unit</label>
