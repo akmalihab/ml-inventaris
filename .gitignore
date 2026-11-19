@@ -16,6 +16,8 @@ outputs/
 # Models (file biner model besar)
 models/*.pkl
 models/*.json
+!models/xgb_scaleposweight_binary.pkl
+!models/preprocessing_reference_v2.pkl
 
 # Python & Jupyter
 __pycache__/
