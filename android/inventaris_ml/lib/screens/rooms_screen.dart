@@ -228,8 +228,10 @@ class _RoomsScreenState extends State<RoomsScreen> {
       orElse: () => Room(id: 0, nama: '-'),
     );
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF1F5F9),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,9 +273,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
                 // Top control: Selector Ruangan & Statistik 3 Card
                 Container(
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                    border: Border(bottom: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
                   ),
                   child: Column(
                     children: [
@@ -281,15 +283,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFCBD5E1)),
+                          border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<int>(
                             value: _selectedRoomId,
                             isExpanded: true,
-                            icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF0F172A)),
+                            dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                            icon: Icon(Icons.keyboard_arrow_down, color: isDark ? Colors.white : const Color(0xFF0F172A)),
                             items: _rooms.map((r) {
                               return DropdownMenuItem(
                                 value: r.id,
@@ -387,8 +390,8 @@ class _RoomsScreenState extends State<RoomsScreen> {
                             child: _buildSummaryCard(
                               title: 'Total Aset',
                               value: '$totalAset',
-                              color: const Color(0xFF0F172A),
-                              bgColor: const Color(0xFFF8FAFC),
+                              color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF0F172A),
+                              bgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -397,7 +400,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                               title: 'Perlu Pemeliharaan',
                               value: '$perluCount',
                               color: const Color(0xFFD97706),
-                              bgColor: const Color(0xFFFFFBEB),
+                              bgColor: isDark ? const Color(0xFF2E1F08) : const Color(0xFFFFFBEB),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -406,7 +409,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                               title: 'Prioritas Kritis',
                               value: '$kritisCount',
                               color: const Color(0xFFE11D48),
-                              bgColor: const Color(0xFFFFF1F2),
+                              bgColor: isDark ? const Color(0xFF330C16) : const Color(0xFFFFF1F2),
                             ),
                           ),
                         ],
@@ -417,10 +420,11 @@ class _RoomsScreenState extends State<RoomsScreen> {
                       SizedBox(
                         height: 38,
                         child: TextField(
+                          style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 13),
                           decoration: InputDecoration(
                             hintText: 'Cari aset di Ruang ${selectedRoom.nama}…',
-                            hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                            prefixIcon: const Icon(Icons.search, size: 18, color: Color(0xFF64748B)),
+                            hintStyle: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                            prefixIcon: Icon(Icons.search, size: 18, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                             suffixIcon: _searchQuery.isNotEmpty
                                 ? IconButton(
                                     icon: const Icon(Icons.clear, size: 16),
@@ -429,14 +433,14 @@ class _RoomsScreenState extends State<RoomsScreen> {
                                 : null,
                             contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                             filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
+                            fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                              borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                              borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
                             ),
                           ),
                           onChanged: (v) => setState(() => _searchQuery = v),
@@ -451,36 +455,36 @@ class _RoomsScreenState extends State<RoomsScreen> {
                           children: [
                             _buildFilterChip('Semua Status', _filterStatus == 'semua', () {
                               setState(() => _filterStatus = 'semua');
-                            }),
+                            }, isDark),
                             const SizedBox(width: 6),
                             _buildFilterChip('Kondisi Baik', _filterStatus == 'baik', () {
                               setState(() => _filterStatus = 'baik');
-                            }),
+                            }, isDark),
                             const SizedBox(width: 6),
                             _buildFilterChip('Perlu Servis', _filterStatus == 'perlu', () {
                               setState(() => _filterStatus = 'perlu');
-                            }),
+                            }, isDark),
                             const SizedBox(width: 6),
                             _buildFilterChip('Prioritas Kritis', _filterStatus == 'kritis', () {
                               setState(() => _filterStatus = 'kritis');
-                            }),
+                            }, isDark),
                             const VerticalDivider(width: 16),
                             // Filter Kategori
                             _buildCategoryChip('Semua Kategori', _filterKategori == 'semua', () {
                               setState(() => _filterKategori = 'semua');
-                            }),
+                            }, isDark),
                             const SizedBox(width: 6),
                             _buildCategoryChip('Elektronik', _filterKategori == 'Elektronik', () {
                               setState(() => _filterKategori = 'Elektronik');
-                            }),
+                            }, isDark),
                             const SizedBox(width: 6),
                             _buildCategoryChip('Furnitur', _filterKategori == 'Furnitur', () {
                               setState(() => _filterKategori = 'Furnitur');
-                            }),
+                            }, isDark),
                             const SizedBox(width: 6),
                             _buildCategoryChip('Pelengkap', _filterKategori == 'Pelengkap', () {
                               setState(() => _filterKategori = 'Pelengkap');
-                            }),
+                            }, isDark),
                           ],
                         ),
                       ),
@@ -514,7 +518,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
                               separatorBuilder: (_, _) => const SizedBox(height: 10),
                               itemBuilder: (ctx, idx) {
                                 final item = filtered[idx];
-                                return _buildItemCard(item);
+                                return _buildItemCard(item, isDark);
                               },
                             ),
                 ),
@@ -555,53 +559,65 @@ class _RoomsScreenState extends State<RoomsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onTap, bool isDark) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+          color: isSelected
+              ? (isDark ? const Color(0xFF10B981) : const Color(0xFF0F172A))
+              : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0)),
+          border: Border.all(
+            color: isSelected
+                ? (isDark ? const Color(0xFF10B981) : const Color(0xFF0F172A))
+                : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
+            color: isSelected ? Colors.white : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCategoryChip(String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildCategoryChip(String label, bool isSelected, VoidCallback onTap, bool isDark) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF10B981) : const Color(0xFFF1F5F9),
+          color: isSelected
+              ? const Color(0xFF10B981)
+              : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? const Color(0xFF10B981) : const Color(0xFFE2E8F0)),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFF10B981)
+                : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
+            color: isSelected ? Colors.white : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildItemCard(Map<String, dynamic> item) {
+  Widget _buildItemCard(Map<String, dynamic> item, bool isDark) {
     final preds = item['predictions'] as List<dynamic>? ?? [];
     final pred = preds.isNotEmpty ? preds.first as Map<String, dynamic> : null;
 
@@ -644,9 +660,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? const Color(0xFF0F172A) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
           boxShadow: const [
             BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.02), blurRadius: 4, offset: Offset(0, 2)),
           ],
@@ -663,13 +679,17 @@ class _RoomsScreenState extends State<RoomsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                       ),
                       child: Text(
                         '${item['kategori']}',
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -702,10 +722,10 @@ class _RoomsScreenState extends State<RoomsScreen> {
                 Expanded(
                   child: Text(
                     item['nama_barang'] ?? '-',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                   ),
                 ),
@@ -736,11 +756,11 @@ class _RoomsScreenState extends State<RoomsScreen> {
                 ),
                 Text(
                   _formatCurrency(harga),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'monospace',
-                    color: Color(0xFF1E293B),
+                    color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B),
                   ),
                 ),
               ],

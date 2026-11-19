@@ -161,8 +161,10 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF1F5F9),
       appBar: AppBar(
         title: const Text(
           'Detail Aset Non-Medis',

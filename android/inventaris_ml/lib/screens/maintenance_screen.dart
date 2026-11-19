@@ -103,8 +103,10 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
       return true;
     }).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF1F5F9),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,29 +144,30 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
           // Filter & Search Controls
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              border: Border(bottom: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
             ),
             child: Column(
               children: [
                 SizedBox(
                   height: 38,
                   child: TextField(
+                    style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A), fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Cari nama aset atau ruangan…',
-                      hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
-                      prefixIcon: const Icon(Icons.search, size: 18, color: Color(0xFF64748B)),
+                      hintStyle: TextStyle(fontSize: 12, color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                      prefixIcon: Icon(Icons.search, size: 18, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
                       contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                       filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                        borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                        borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
                       ),
                     ),
                     onChanged: (v) => setState(() => _searchQuery = v),
@@ -175,13 +178,13 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildStatusFilterChip('Semua Status', 'Semua'),
+                      _buildStatusFilterChip('Semua Status', 'Semua', isDark),
                       const SizedBox(width: 6),
-                      _buildStatusFilterChip('Antre', 'Antre'),
+                      _buildStatusFilterChip('Antre', 'Antre', isDark),
                       const SizedBox(width: 6),
-                      _buildStatusFilterChip('Dikerjakan', 'Dikerjakan'),
+                      _buildStatusFilterChip('Dikerjakan', 'Dikerjakan', isDark),
                       const SizedBox(width: 6),
-                      _buildStatusFilterChip('Selesai', 'Selesai'),
+                      _buildStatusFilterChip('Selesai', 'Selesai', isDark),
                     ],
                   ),
                 ),
@@ -210,7 +213,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                             separatorBuilder: (_, _) => const SizedBox(height: 10),
                             itemBuilder: (ctx, idx) {
                               final task = filtered[idx];
-                              return _buildTaskCard(task);
+                              return _buildTaskCard(task, isDark);
                             },
                           ),
           ),
@@ -219,7 +222,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
     );
   }
 
-  Widget _buildStatusFilterChip(String label, String value) {
+  Widget _buildStatusFilterChip(String label, String value, bool isDark) {
     final isSelected = _filterStatus == value;
     return InkWell(
       onTap: () => setState(() => _filterStatus = value),
@@ -227,23 +230,29 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+          color: isSelected
+              ? (isDark ? const Color(0xFF10B981) : const Color(0xFF0F172A))
+              : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0)),
+          border: Border.all(
+            color: isSelected
+                ? (isDark ? const Color(0xFF10B981) : const Color(0xFF0F172A))
+                : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
+            color: isSelected ? Colors.white : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTaskCard(Map<String, dynamic> task) {
+  Widget _buildTaskCard(Map<String, dynamic> task, bool isDark) {
     final taskId = task['id'] as String;
     final currentStatus = task['status'] as String? ?? 'Antre';
     final pred = task['predictions'] as Map<String, dynamic>?;
@@ -258,9 +267,9 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
         boxShadow: const [
           BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.02), blurRadius: 4, offset: Offset(0, 2)),
         ],
@@ -275,16 +284,16 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.12),
+                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   'Ruang $roomName',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF047857),
+                    color: isDark ? const Color(0xFF34D399) : const Color(0xFF047857),
                   ),
                 ),
               ),
@@ -293,13 +302,14 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.12),
+                  color: statusColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: statusColor.withOpacity(0.4)),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.4)),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: currentStatus,
+                    dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                     icon: Icon(Icons.arrow_drop_down, size: 16, color: statusColor),
                     isDense: true,
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: statusColor),
@@ -323,7 +333,11 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
           // Nama Barang
           Text(
             inv?['nama_barang'] ?? '-',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
           ),
           const SizedBox(height: 4),
 
@@ -347,7 +361,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> {
                 ),
             ],
           ),
-          const Divider(height: 16, color: Color(0xFFE2E8F0)),
+          Divider(height: 16, color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
 
           // Footer: Action ke Detail Barang
           Row(
