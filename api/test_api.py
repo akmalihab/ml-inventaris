@@ -15,7 +15,7 @@ def test_health():
     d = r.json()
     assert d["status"] == "ok"
     assert "threshold_f2" in d
-    print("✓ /health:", d)
+    print("[OK] /health:", d)
 
 
 def test_ac_panasonic():
@@ -35,7 +35,7 @@ def test_ac_panasonic():
     assert prob > 0.95, f"Ekspektasi prob > 0.95, dapat {prob}"
     assert d["label"] == "Perlu Pemeliharaan", f"Ekspektasi Perlu Pemeliharaan, dapat {d['label']}"
     assert len(d["alasan_top3"]) == 3
-    print(f"✓ AC Panasonic: prob={prob:.4f}, label={d['label']}, prioritas={d['prioritas']}")
+    print(f"[OK] AC Panasonic: prob={prob:.4f}, label={d['label']}, prioritas={d['prioritas']}")
     print(f"  Alasan: {[a['penjelasan'] for a in d['alasan_top3']]}")
 
 
@@ -56,7 +56,7 @@ def test_barang_baik():
     prob = d["probabilitas"]
     assert prob < 0.417, f"Ekspektasi prob < 0.417, dapat {prob}"
     assert d["label"] == "Baik", f"Ekspektasi Baik, dapat {d['label']}"
-    print(f"✓ Barang Baik: prob={prob:.4f}, label={d['label']}")
+    print(f"[OK] Barang Baik: prob={prob:.4f}, label={d['label']}")
 
 
 def test_validasi_bahan_salah():
@@ -71,7 +71,7 @@ def test_validasi_bahan_salah():
     }
     r = requests.post(f"{BASE}/predict", json=payload)
     assert r.status_code == 422, f"Ekspektasi 422, dapat {r.status_code}"
-    print("✓ Validasi bahan salah ditolak dengan 422")
+    print("[OK] Validasi bahan salah ditolak dengan 422")
 
 
 if __name__ == "__main__":
@@ -80,4 +80,4 @@ if __name__ == "__main__":
     test_ac_panasonic()
     test_barang_baik()
     test_validasi_bahan_salah()
-    print("\n✅ Semua test lolos")
+    print("\n[SUCCESS] Semua test lolos")

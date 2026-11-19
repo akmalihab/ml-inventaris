@@ -239,16 +239,17 @@ components/ShapChart.vue — bar chart SHAP tanpa library eksternal
 
 ---
 
-## Fase 4 — Demo End-to-End (🔲 Belum dimulai)
+## Fase 4 — Demo End-to-End (✅ Selesai)
 
-Alur demo:
-1. Input barang baru di Android → tekan Prediksi
-2. Hasil muncul di Android (label, prob, prioritas, top-3 alasan)
-3. Barang muncul di dashboard web tanpa refresh manual (Supabase Realtime)
-4. Admin buka detail → baca penjelasan SHAP → koreksi label
-5. Status pemeliharaan: Antre → Dikerjakan → Selesai
+Alur demo & verifikasi:
+1. Input barang baru di Android (`FormScreen` - preset AC Panasonic 2 PK) → tekan Prediksi.
+2. Hasil muncul di Android (Perlu Pemeliharaan, prob ~96.3%, prioritas Tinggi, 3 alasan SHAP).
+3. Barang muncul di dashboard web tanpa refresh manual (Supabase Realtime).
+4. Admin buka detail → baca penjelasan SHAP + metrik depresiasi & sisa nilai buku.
+5. Status pemeliharaan: Antre → Dikerjakan → Selesai (otomatis sinkronkan status barang menjadi Baik/Teratasi).
 
-Output: `docs/demo-checklist.md` berisi langkah + angka yang harus terlihat tiap langkah.
+Output: `docs/demo-checklist.md` berisi 5 tahap pengujian lengkap dengan angka acuan validasi.
+Verifikasi Benchmark: `api/test_api.py` lolos 100%.
 
 ---
 
